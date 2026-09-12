@@ -1,0 +1,23 @@
+node_modules/
+out/
+dist/
+release-build/
+.release-app/
+*.log
+.DS_Store
+
+# Sudachi 词典（~200MB，装机时 npm run setup:dict 下载，不入库）
+src/renderer/public/sudachi/
+
+# 版权样书：EPUB 不入库（避免公开仓库分发受版权保护的书）
+*.epub
+
+# 本地环境/密钥（以防将来引入 .env；AI/声音档案的 apiKey 存 electron-store，本就不在仓库内）
+.env
+.env.*
+*.local
+
+# 本地开发工具索引与只读参考项目
+.claude/
+.codegraph/
+/参考/

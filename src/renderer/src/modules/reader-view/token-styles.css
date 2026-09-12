@@ -1,0 +1,116 @@
+/* 词框视觉模式：正文 token 与设置预览共用同一套设计变量。 */
+:root,
+[data-token-style='capsule-soft'] {
+  --token-style-fill-strength: 56%;
+  --token-style-border-strength: 0%;
+  --token-style-radius: 0.48em;
+  --token-style-pad-x: 0.16em;
+  --token-style-pad-y: 0.04em;
+}
+
+[data-token-style='capsule-clear'] {
+  --token-style-fill-strength: 83%;
+  --token-style-border-strength: 72%;
+  --token-style-radius: 0.48em;
+  --token-style-pad-x: 0.16em;
+  --token-style-pad-y: 0.04em;
+}
+
+[data-token-style='capsule-minimal'] {
+  --token-style-fill-strength: 33%;
+  --token-style-border-strength: 0%;
+  --token-style-radius: 0.55em;
+  --token-style-pad-x: 0.14em;
+  --token-style-pad-y: 0.03em;
+}
+
+[data-token-style='marker'] {
+  --token-style-fill-strength: 62%;
+  --token-style-border-strength: 0%;
+  --token-style-radius: 0.18em;
+  --token-style-pad-x: 0.08em;
+  --token-style-pad-y: 0;
+}
+
+[data-token-style='underline'] {
+  --token-style-fill-strength: 0%;
+  --token-style-border-strength: 85%;
+  --token-style-radius: 0;
+  --token-style-pad-x: 0.05em;
+  --token-style-pad-y: 0;
+}
+
+[data-token-style='classic'] {
+  --token-style-fill-strength: 100%;
+  --token-style-border-strength: 50%;
+  --token-style-radius: 3px;
+  --token-style-pad-x: 0.05em;
+  --token-style-pad-y: 0;
+}
+
+.reader-token,
+.settings-token-sample {
+  --token-style-base-color: color-mix(
+    in srgb,
+    var(--token-bg-color, #6b8cae) var(--token-bg-opacity-percent, 18%),
+    transparent
+  );
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--token-style-base-color) var(--token-style-border-strength, 0%),
+      transparent
+    );
+  border-radius: var(--token-style-radius, 0.48em);
+  background: color-mix(
+    in srgb,
+    var(--token-style-base-color) var(--token-style-fill-strength, 56%),
+    transparent
+  );
+  padding: var(--token-style-pad-y, 0.04em) var(--token-style-pad-x, 0.16em);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+[data-token-style='marker'] .reader-token,
+.settings-token-option[data-token-style='marker'] .settings-token-sample {
+  border-color: transparent;
+  background: linear-gradient(
+    to bottom,
+    transparent 58%,
+    color-mix(
+        in srgb,
+        var(--token-style-base-color) var(--token-style-fill-strength),
+        transparent
+      ) 58%,
+    color-mix(
+        in srgb,
+        var(--token-style-base-color) var(--token-style-fill-strength),
+        transparent
+      ) 92%,
+    transparent 92%
+  );
+}
+
+[data-token-style='underline'] .reader-token,
+.settings-token-option[data-token-style='underline'] .settings-token-sample {
+  border-color: transparent;
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--token-style-base-color) var(--token-style-border-strength),
+    transparent
+  );
+  background: transparent;
+}
+
+/* 所有视觉模式共用同一交互反馈；边框始终占位，状态变化不会推动正文。 */
+.reader-token:hover {
+  border-color: color-mix(in srgb, var(--accent-foreground) 45%, transparent);
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.reader-token:active {
+  background: color-mix(in srgb, var(--accent) 82%, var(--primary));
+  color: var(--accent-foreground);
+}

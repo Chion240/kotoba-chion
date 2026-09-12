@@ -1,0 +1,62 @@
+/* tts · 播放栏 + 声音分区样式。全走主题语义色变量，不写死颜色（ui-kit 会话约定）。 */
+.tts-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tts-gran {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tts-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s var(--ease-spring, ease);
+}
+.tts-seg:hover:not(.is-active) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.tts-seg:active {
+  transform: scale(0.96);
+}
+.tts-seg.is-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.tts-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}
+.tts-error {
+  color: var(--destructive);
+}
+.tts-spin {
+  animation: tts-rotate 0.9s linear infinite;
+}
+@keyframes tts-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

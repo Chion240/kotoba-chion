@@ -1,0 +1,166 @@
+/* ai-analysis 模块样式。语义色/字体走主题 token（ui-kit），不写死颜色。 */
+
+.ai-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* 档案标签行 */
+.ai-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.ai-tab {
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s var(--ease-spring, ease);
+}
+.ai-tab:hover:not(.is-active) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.ai-tab:active {
+  transform: scale(0.96);
+}
+.ai-tab.is-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-xs);
+}
+/* 消息列表 */
+.ai-messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ai-empty {
+  margin: auto;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  text-align: center;
+}
+/* 会话 12：AI 面板字号可调（settings --ai-font-size，默认保持 0.9rem）。
+   用户消息保留气泡；助手回复去掉灰底，但沿用原有阅读字体和排版。 */
+.ai-msg {
+  padding: 0.55rem 0.8rem;
+  border-radius: 16px;
+  font-size: var(--ai-font-size, 0.9rem);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  user-select: text;
+  animation: ai-msg-in 0.25s var(--ease-spring, ease) both;
+}
+@keyframes ai-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.ai-msg.is-user {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  align-self: flex-end;
+  max-width: 90%;
+  border-bottom-right-radius: 6px;
+  box-shadow: var(--shadow-xs);
+}
+.ai-msg.is-assistant {
+  background: transparent;
+  color: var(--foreground);
+  align-self: flex-start;
+  max-width: 100%;
+  border-bottom-left-radius: 6px;
+  box-shadow: none;
+}
+
+/* 状态条（streaming/error + 取消） */
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+  border-top: 1px solid var(--border);
+}
+.ai-status.is-error {
+  color: var(--destructive);
+}
+.ai-cancel-btn {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.ai-cancel-btn:hover {
+  background: var(--accent);
+  border-color: var(--primary);
+}
+
+/* 配置 Dialog 表单 */
+.ai-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.ai-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ai-field label {
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+}
+.ai-field input,
+.ai-field textarea {
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--input);
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ai-field input:focus-visible,
+.ai-field textarea:focus-visible {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 25%, transparent);
+}
+.ai-field textarea {
+  min-height: 5rem;
+  resize: vertical;
+}

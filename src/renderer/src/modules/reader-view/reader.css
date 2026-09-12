@@ -1,0 +1,639 @@
+/* reader-view 样式。语义色/字体走主题 token（ui-kit 会话），不写死颜色。 */
+
+/* 会话 12+：阅读区背景可调（--reader-bg，空回落主题 --background） */
+.reader-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--reader-bg, var(--background));
+  color: var(--foreground);
+}
+
+.reader-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.25rem;
+  padding: 0.45rem clamp(0.75rem, 2vw, 1.25rem);
+  border-bottom: 1px solid var(--border);
+  /* 会话 12+：工具栏背景统一走面板背景旋钮（--reader-panel-bg，与目录/AI 面板一致；空回落 --card） */
+  background: var(--reader-panel-bg, var(--card));
+  font-size: 0.8rem;
+}
+.reader-toolbar-primary,
+.reader-toolbar-secondary {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.5rem;
+}
+.reader-toolbar-primary {
+  flex: 1;
+}
+.reader-toolbar-secondary {
+  flex-shrink: 0;
+}
+.reader-toolbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 600;
+}
+.reader-toolbar-back:hover {
+  color: var(--foreground);
+}
+.reader-toolbar-modes {
+  display: flex;
+  gap: 0.25rem;
+}
+.reader-toolbar-chapter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.reader-chapter-name {
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--foreground);
+  font-weight: 500;
+}
+.reader-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: inherit;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s var(--ease-spring, ease);
+}
+.reader-nav-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.reader-nav-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.reader-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.reader-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: inherit;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s var(--ease-spring, ease);
+}
+.reader-mode-btn:hover:not(.is-active) {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.reader-mode-btn:active {
+  transform: scale(0.96);
+}
+.reader-mode-btn.is-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-xs);
+}
+
+/* 分词词典加载失败横幅（供无法开 F12 的场景显示根因） */
+.reader-dict-error {
+  padding: 0.5rem 1rem;
+  background: var(--destructive);
+  color: var(--primary-foreground);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* 三栏主体：左目录 | 中阅读 | 右面板 */
+.reader-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 左侧目录覆盖层：脱离主体 flex，开合和拖宽都不改变正文中栏的宽度或滚动测量。 */
+.reader-toc-layer {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 10;
+  min-width: 0;
+}
+.reader-toc-layer .reader-resizer {
+  position: absolute;
+  top: 0;
+  right: -5px;
+  bottom: 0;
+}
+
+/* 左侧目录（可收起，宽度由覆盖层的 React state 驱动 + 拖拽调整，会话 9.1） */
+.reader-toc {
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  /* 会话 12+：目录背景可调（--reader-panel-bg，与 AI 面板共用同一旋钮；空回落主题 --card） */
+  background: var(--reader-panel-bg, var(--card));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-md);
+}
+.reader-toc-title {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  /* sticky 标题背景跟随面板背景（否则滚动时标题露出主题色，与目录背景割裂） */
+  background: var(--reader-panel-bg, var(--card));
+}
+.reader-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem;
+}
+.reader-toc-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.65rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  /* 会话 12：目录字号可调（settings --toc-font-size），默认保持 0.85rem */
+  font-size: var(--toc-font-size, 0.85rem);
+  line-height: 1.35;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.reader-toc-item:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+.reader-toc-item.is-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-xs);
+}
+.reader-toc-num {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  min-width: 1.5rem;
+}
+.reader-toc-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 右侧 AI 面板（可收起，含暂存框；宽度 React state 驱动 + 拖拽调整，会话 9.1） */
+.reader-panel {
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  /* 会话 12+：AI 面板背景统一走 --reader-panel-bg（与工具栏/目录一致；空回落 --card） */
+  background: var(--reader-panel-bg, var(--card));
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.reader-panel-title {
+  padding: 0.6rem 0.9rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+}
+
+/* 拖拽手柄：细长可点区，跨在面板与阅读区之间；hover 变 col-resize 光标（会话 9.1） */
+.reader-resizer {
+  flex-shrink: 0;
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  transition: background-color 0.15s ease;
+  touch-action: none;
+}
+.reader-resizer:hover {
+  background: color-mix(in oklch, var(--primary) 55%, transparent);
+}
+
+/* 列表包裹层：占满中栏（interaction 会话挂右键选段监听）。
+   全局 body 已禁选中，阅读正文必须恢复可选（选段/shift 多选依赖原生 selection）。 */
+.reader-list-wrap {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  overflow: hidden;
+  user-select: text;
+}
+.reader-list {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.reader-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+.reader-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 2px solid color-mix(in oklch, var(--muted-foreground) 30%, transparent);
+  border-top-color: var(--muted-foreground);
+  animation: reader-spin 0.9s linear infinite;
+}
+@keyframes reader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 章末导航 */
+.reader-chapter-end {
+  max-width: var(--reader-content-width, 42rem);
+  margin: 2rem auto 4rem;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+.reader-book-end {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+}
+.reader-chapter-end .reader-nav-btn {
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+}
+
+/* 段落容器占满阅读中栏，左右边距分别可调，让正文可以不对称定位。 */
+.reader-seg {
+  /* auto 宽度填满两个百分比边距之间的空间，因此右边缘固定，左边距变化只向左扩展。 */
+  width: auto;
+  max-width: none;
+  box-sizing: border-box;
+  margin-left: var(--reader-left-margin, 8%);
+  margin-right: var(--reader-right-margin, 8%);
+  padding: 0.15rem 0;
+}
+
+/* 会话 17 Phase 2：连读中当前朗读段高亮（左边条 + 淡底，用 --accent 语义色）。 */
+.reader-seg.is-speaking {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-left: 3px solid var(--accent-foreground);
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+/* 会话 12：标题字号可调（--reader-heading-size，默认 1.5rem）+ 字重（--reader-font-weight） */
+.reader-heading {
+  width: auto;
+  font-size: var(--reader-heading-size, 1.5rem);
+  font-weight: var(--reader-font-weight, 600);
+  margin: 1.5rem 0 0.75rem;
+  line-height: 1.5;
+}
+/* 会话 12：正文字号/行距/字重/颜色/日文字体族可调（settings CSS 变量，默认保持现观感） */
+.reader-pair {
+  width: auto;
+  font-size: var(--reader-body-size, 1.2rem);
+  line-height: var(--reader-line-height, 2);
+  /* 会话 12+：段间距可调（--reader-seg-gap，默认 0.35rem，段与段之间竖向空隙） */
+  margin: var(--reader-seg-gap, 0.35rem) 0;
+  font-weight: var(--reader-font-weight, 400);
+  color: var(--reader-body-color, var(--foreground));
+  /* 空槽回落到主题 JP 阅读字体栈（保持现观感，不裸奔到 inherit 丢明朝体） */
+  font-family: var(--reader-font-jp, var(--font-reading-jp));
+}
+.reader-jp-plain {
+  white-space: pre-wrap;
+}
+
+/* 可点 token：表面由 token-styles.css 的六种模式控制；此处只保留布局与交互。 */
+.reader-token {
+  cursor: pointer;
+  /* 词框横向间距由 --token-gap 驱动（settings 词距滑块，默认 0.02em）；词框内字距 --token-letter-spacing */
+  margin: 0 var(--token-gap, 0.02em);
+  letter-spacing: var(--token-letter-spacing, 0);
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+/* 振假名：字号/颜色/透明度可调（会话 12 settings，默认保持现观感） */
+.reader-pair rt,
+.reader-heading rt {
+  font-size: var(--furigana-size, 0.5em);
+  color: var(--furigana-color, var(--muted-foreground));
+  opacity: var(--furigana-opacity, 1);
+  user-select: none;
+}
+
+/* 中文行内正下方淡入（总纲第 5、9 节）。会话 12：译文字号 + 中文字体族可调（默认现观感） */
+.reader-zh {
+  width: auto;
+  font-size: var(--reader-zh-size, 1rem);
+  font-weight: var(--reader-zh-weight, 400);
+  line-height: 1.7;
+  color: var(--reader-zh-color, var(--muted-foreground));
+  opacity: var(--reader-zh-opacity, 1);
+  margin: 0.15rem 0 0.5rem;
+  font-family: var(--reader-font-zh, inherit);
+  /* 单字重字体无真粗体时允许浏览器合成，回退字体也一致（缓解"粗细不统一"） */
+  font-synthesis: weight style;
+  animation: reader-zh-fade 0.25s ease both;
+}
+/* 淡入结束停在用户设定的透明度（而非硬编码 1）。
+   动画带 both 会持续覆盖 base 的 opacity——故 to 必须引用同一变量，否则透明度旋钮永远失效。 */
+@keyframes reader-zh-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: var(--reader-zh-opacity, 1);
+    transform: translateY(0);
+  }
+}
+/* AI 译文出错态（纯日语书，会话 15）：语义色 + 内联重试按钮，不写死颜色。 */
+.reader-zh-error {
+  color: var(--destructive, #b91c1c);
+}
+.reader-zh-retry {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.85em;
+  color: var(--primary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.reader-zh-retry:hover {
+  background: var(--accent);
+  border-color: var(--primary);
+}
+
+/* 插图 */
+.reader-image {
+  width: auto;
+  max-width: none;
+  box-sizing: border-box;
+  margin: 1rem var(--reader-right-margin, 8%) 1rem var(--reader-left-margin, 8%);
+  padding: 0;
+  text-align: center;
+}
+.reader-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.reader-image-placeholder {
+  height: 12rem;
+}
+
+/* 搜索/标记是按需打开的工具，不占用正文宽度。半透明面板保持正文轮廓可见。 */
+.reader-tool-panel {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  z-index: 12;
+  display: flex;
+  width: min(23rem, calc(100% - 2rem));
+  max-height: calc(100% - 1.5rem);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  color: var(--foreground);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px) saturate(115%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+}
+.reader-tool-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.6rem 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.reader-tool-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.reader-tool-search-input {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: 1;
+  min-width: 0;
+  color: var(--muted-foreground);
+}
+.reader-tool-search-input input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+}
+.reader-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+.reader-icon-btn:hover {
+  border-color: var(--border);
+  background: var(--accent);
+  color: var(--foreground);
+}
+.reader-tool-panel-status {
+  padding: 0.6rem 0.8rem;
+  color: var(--muted-foreground);
+  font-size: 0.78rem;
+}
+.reader-search-results {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 0.45rem 0.55rem;
+}
+.reader-search-result {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.6rem 0.45rem;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.reader-search-result:hover {
+  background: var(--accent);
+}
+.reader-search-result-chapter {
+  flex: 0 0 5rem;
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reader-progress {
+  position: relative;
+  z-index: 4;
+  height: 2px;
+  flex: 0 0 2px;
+  background: color-mix(in srgb, var(--border) 45%, transparent);
+}
+.reader-progress span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+.reader-scroll-placeholder {
+  width: 100%;
+  min-height: 1rem;
+  visibility: hidden;
+}
+
+@media (max-width: 48rem) {
+  .reader-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-block: 0.55rem;
+  }
+
+  .reader-toolbar-primary,
+  .reader-toolbar-secondary {
+    width: 100%;
+  }
+
+  .reader-toolbar-secondary {
+    justify-content: flex-end;
+  }
+
+  .reader-chapter-name {
+    max-width: none;
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 30rem) {
+  .reader-toolbar-secondary {
+    justify-content: space-between;
+  }
+
+  .reader-toolbar-secondary .reader-mode-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .reader-toolbar-secondary .reader-mode-btn span {
+    display: none;
+  }
+
+  .reader-toolbar-secondary .reader-mode-btn:first-child span,
+  .reader-toolbar-secondary .reader-mode-btn:last-child span {
+    display: inline;
+  }
+
+  .reader-panel {
+    width: min(100%, 24rem) !important;
+  }
+
+  .reader-tool-panel {
+    right: 0.5rem;
+    width: calc(100% - 1rem);
+  }
+}
+
+/* 竖排阅读：独立布局层。writing-mode 让列从右向左流动，滚动轴保持原生横向。 */
+.reader-vertical-flow {
+  box-sizing: border-box;
+  display: block;
+  width: max-content;
+  min-width: max-content;
+  height: 100%;
+  padding: var(--reader-vertical-top-margin, 6%) var(--reader-right-margin, 8%) var(--reader-vertical-bottom-margin, 6%) var(--reader-left-margin, 8%);
+  writing-mode: vertical-rl;
+  overflow-x: visible;
+  color: var(--reader-body-color, var(--foreground));
+  font-family: var(--reader-font-jp, var(--font-reading-jp));
+}
+.reader-list-wrap:has(.reader-vertical-flow) { overflow: auto; }
+.reader-vertical-flow .reader-seg,
+.reader-vertical-flow .reader-heading {
+  box-sizing: border-box;
+  width: auto;
+  max-width: none;
+  min-height: 100%;
+  margin: 0 var(--reader-vertical-column-gap, 2.5rem) 0 0;
+  padding: 0;
+}
+.reader-vertical-flow .reader-pair { font-size: var(--reader-vertical-body-size, 1.2rem); line-height: var(--reader-vertical-line-height, 2); margin: 0; }
+.reader-vertical-flow .reader-token { margin: 0 var(--reader-vertical-token-gap, 0.02em); letter-spacing: var(--reader-vertical-token-letter-spacing, 0); }
+.reader-vertical-flow .reader-zh { margin: 0 0.5rem 0 0; }
+.reader-vertical-flow .reader-chapter-end { min-height: 100%; width: 12rem; margin: 0 2rem 0 0; writing-mode: horizontal-tb; }
+.reader-vertical-flow .reader-image { margin: 0 2rem 0 0; min-height: 100%; }

@@ -1,0 +1,61 @@
+appId: com.chion240.kotobachion
+productName: Kotoba Chion
+copyright: Copyright © 2026 Chion240. All rights reserved.
+
+directories:
+  app: .release-app
+  output: release-build
+  buildResources: build
+
+files:
+  - out/**/*
+  - package.json
+  - "!node_modules/sudachi-wasm333/resources/**/*"
+  - "!node_modules/**/*.{ts,tsx,map}"
+  - "!node_modules/**/{test,tests,__tests__,spec,specs,example,examples,benchmark,benchmarks}/**/*"
+  - "!node_modules/**/test*.js"
+  - "!node_modules/**/*.{test,spec}.js"
+  - "!node_modules/**/*.{c,cc,cpp,h,hpp,gyp,gypi,sln,vcxproj,filters,obj,lib,exp,iobj,ipdb,pdb,tlog,recipe,lastbuildstate}"
+  - "!node_modules/**/.forge-meta"
+  - "!node_modules/better-sqlite3/src/**/*"
+  - "!node_modules/better-sqlite3/deps/**/*"
+  - "!node_modules/better-sqlite3/build/Release/test_extension.node"
+
+asar: true
+asarUnpack:
+  - node_modules/better-sqlite3/build/Release/better_sqlite3.node
+  - out/renderer/sudachi/**/*
+
+extraResources:
+  - from: LICENSE
+    to: EULA.txt
+  - from: THIRD_PARTY_NOTICES.txt
+    to: THIRD_PARTY_NOTICES.txt
+
+npmRebuild: false
+compression: maximum
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: zip
+      arch:
+        - x64
+  artifactName: Kotoba-Chion-Portable-${version}-${arch}.${ext}
+
+nsis:
+  artifactName: Kotoba-Chion-Setup-${version}-${arch}.${ext}
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Kotoba Chion
+  deleteAppDataOnUninstall: false
+  license: LICENSE
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
